@@ -1,6 +1,7 @@
 package klox
 
 import klox.lexer.Lexer
+import klox.lexer.LexerImpl
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.Reader
@@ -42,8 +43,8 @@ object Klox {
     }
 
     fun run(source: String) {
-        val scanner = Lexer(source)
-        val tokens = scanner.scanTokens()
+        val lexer: Lexer = LexerImpl(source)
+        val tokens = lexer.scanTokens()
 
         // For now, just print the tokens.
         for (token in tokens) {
