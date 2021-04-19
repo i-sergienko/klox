@@ -1,4 +1,7 @@
-package klox.parser.ast.expression
+package klox.parser.ast.expression.visitor
+
+import klox.parser.ast.expression.*
+import klox.parser.ast.expression.Set
 
 interface ExpressionVisitor<R> {
     fun visitAssignExpr(expr: Assign): R
