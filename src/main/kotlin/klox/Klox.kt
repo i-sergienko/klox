@@ -8,6 +8,7 @@ import klox.parser.Parser
 import klox.parser.ParserImpl
 import klox.parser.ast.expression.Expr
 import klox.parser.ast.expression.visitor.AstPrinter
+import klox.parser.ast.expression.visitor.Interpreter
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.Reader
@@ -30,6 +31,8 @@ fun main(args: Array<String>) {
 
 object Klox {
     var hadError = false
+
+    val interpreter = Interpreter()
 
     fun runFile(path: String) {
         val bytes = Files.readAllBytes(Paths.get(path))
@@ -57,10 +60,9 @@ object Klox {
         val expression: Expr? = parser.parse()
 
         // Stop if there was a syntax error.
-
-        // Stop if there was a syntax error.
         if (hadError) return
 
+        expression?.apply { interpreter.interpret(this) }
         expression?.apply { println(AstPrinter().toString(this)) }
     }
 
