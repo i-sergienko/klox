@@ -2,6 +2,12 @@ package klox
 
 import klox.lexer.Lexer
 import klox.lexer.LexerImpl
+import klox.lexer.Token
+import klox.lexer.TokenType
+import klox.parser.Parser
+import klox.parser.ParserImpl
+import klox.parser.ast.expression.Expr
+import klox.parser.ast.expression.visitor.AstPrinter
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.Reader
@@ -9,6 +15,7 @@ import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.system.exitProcess
+
 
 fun main(args: Array<String>) {
     when {
@@ -46,10 +53,15 @@ object Klox {
         val lexer: Lexer = LexerImpl(source)
         val tokens = lexer.scanTokens()
 
-        // For now, just print the tokens.
-        for (token in tokens) {
-            println(token)
-        }
+        val parser: Parser = ParserImpl(tokens)
+        val expression: Expr? = parser.parse()
+
+        // Stop if there was a syntax error.
+
+        // Stop if there was a syntax error.
+        if (hadError) return
+
+        expression?.apply { println(AstPrinter().toString(this)) }
     }
 
     fun error(line: Int, message: String) {
@@ -64,5 +76,13 @@ object Klox {
             "[line $line] Error$where: $message"
         )
         hadError = true
+    }
+
+    fun error(token: Token, message: String) {
+        if (token.type == TokenType.EOF) {
+            report(token.line, " at end", message)
+        } else {
+            report(token.line, " at '" + token.lexeme.toString() + "'", message)
+        }
     }
 }
