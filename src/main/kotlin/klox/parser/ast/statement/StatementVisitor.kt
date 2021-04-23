@@ -6,4 +6,6 @@ interface StatementVisitor<R> {
 
     fun visitPrintStmt(stmt: Print): R
 
+    fun visitVarStmt(stmt: Var): R
+
 }

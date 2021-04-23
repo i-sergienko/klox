@@ -16,7 +16,5 @@ data class Print(val expression: Expr) : Stmt() {
 }
 
 data class Var(val name: Token, val initializer: Expr?): Stmt() {
-    override fun <R> accept(visitor: StatementVisitor<R>): R {
-        TODO("Not yet implemented")
-    }
+    override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitVarStmt(this)
 }

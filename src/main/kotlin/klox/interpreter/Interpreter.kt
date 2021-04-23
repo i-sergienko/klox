@@ -3,13 +3,11 @@ package klox.interpreter
 import klox.lexer.TokenType
 import klox.parser.ast.expression.*
 import klox.parser.ast.expression.Set
-import klox.parser.ast.statement.Expression
-import klox.parser.ast.statement.Print
-import klox.parser.ast.statement.StatementVisitor
-import klox.parser.ast.statement.Stmt
+import klox.parser.ast.statement.*
 
 
 class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
+    val environment: Environment = Environment()
 
     fun interpret(statements: List<Stmt>) {
         try {
@@ -25,6 +23,10 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
 
     override fun visitPrintStmt(stmt: Print) {
         println(evaluate(stmt.expression))
+    }
+
+    override fun visitVarStmt(stmt: Var) {
+        environment.define(stmt.name.lexeme, stmt.initializer?.let { evaluate(it) })
     }
 
     private fun execute(stmt: Stmt) {
@@ -117,7 +119,5 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
             else -> true
         }
 
-    override fun visitVariableExpr(expr: Variable): Any? {
-        TODO("Not yet implemented")
-    }
+    override fun visitVariableExpr(expr: Variable): Any? = environment.get(expr.name)
 }
