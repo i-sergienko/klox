@@ -1,7 +1,6 @@
 package klox.parser.ast.expression
 
 import klox.lexer.Token
-import klox.parser.ast.expression.visitor.ExpressionVisitor
 
 sealed class Expr {
     abstract fun <R> accept(visitor: ExpressionVisitor<R>): R

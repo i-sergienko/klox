@@ -1,7 +1,7 @@
 package klox.parser
 
-import klox.parser.ast.expression.Expr
+import klox.parser.ast.statement.Stmt
 
 interface Parser {
-    fun parse(): Expr?
+    fun parse(): List<Stmt>
 }

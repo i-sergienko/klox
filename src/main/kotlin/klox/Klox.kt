@@ -1,5 +1,6 @@
 package klox
 
+import klox.interpreter.Interpreter
 import klox.lexer.Lexer
 import klox.lexer.LexerImpl
 import klox.lexer.Token
@@ -7,8 +8,7 @@ import klox.lexer.TokenType
 import klox.parser.Parser
 import klox.parser.ParserImpl
 import klox.parser.ast.expression.Expr
-import klox.parser.ast.expression.visitor.AstPrinter
-import klox.parser.ast.expression.visitor.Interpreter
+import klox.parser.ast.statement.Stmt
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.Reader
@@ -57,13 +57,12 @@ object Klox {
         val tokens = lexer.scanTokens()
 
         val parser: Parser = ParserImpl(tokens)
-        val expression: Expr? = parser.parse()
+        val statements: List<Stmt> = parser.parse()
 
         // Stop if there was a syntax error.
         if (hadError) return
 
-        expression?.apply { interpreter.interpret(this) }
-        expression?.apply { println(AstPrinter().toString(this)) }
+        interpreter.interpret(statements)
     }
 
     fun error(line: Int, message: String) {

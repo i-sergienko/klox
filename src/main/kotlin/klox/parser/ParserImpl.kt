@@ -5,17 +5,40 @@ import klox.lexer.Token
 import klox.lexer.TokenType
 import klox.lexer.TokenType.*
 import klox.parser.ast.expression.*
+import klox.parser.ast.statement.Expression
+import klox.parser.ast.statement.Print
+import klox.parser.ast.statement.Stmt
+import java.util.*
 
 
 class ParserImpl(private val tokens: List<Token>) : Parser {
     private var current = 0
 
-    override fun parse(): Expr? {
-        return try {
-            expression()
-        } catch (error: ParseError) {
-            null
+    override fun parse(): List<Stmt> {
+        val statements: MutableList<Stmt> = ArrayList()
+        while (!isAtEnd()) {
+            statements.add(statement())
         }
+
+        return statements
+    }
+
+    private fun statement(): Stmt =
+        when {
+            match(TokenType.PRINT) -> printStatement()
+            else -> expressionStatement()
+        }
+
+    private fun printStatement(): Stmt {
+        val value = expression()
+        consume(SEMICOLON, "Expect ';' after value.")
+        return Print(value)
+    }
+
+    private fun expressionStatement(): Stmt {
+        val expr = expression()
+        consume(SEMICOLON, "Expect ';' after expression.")
+        return Expression(expr)
     }
 
     private fun expression(): Expr = equality()
@@ -101,7 +124,7 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
         while (!isAtEnd()) {
             if (previous().type === SEMICOLON) return
             when (peek().type) {
-                CLASS, FUN, VAR, FOR, IF, WHILE, PRINT, RETURN -> return
+                CLASS, FUN, VAR, FOR, IF, WHILE, TokenType.PRINT, RETURN -> return
             }
             advance()
         }

@@ -1,22 +1,37 @@
-package klox.parser.ast.expression.visitor
+package klox.interpreter
 
 import klox.lexer.TokenType
 import klox.parser.ast.expression.*
 import klox.parser.ast.expression.Set
+import klox.parser.ast.statement.Expression
+import klox.parser.ast.statement.Print
+import klox.parser.ast.statement.StatementVisitor
+import klox.parser.ast.statement.Stmt
 
 
-class Interpreter : ExpressionVisitor<Any?> {
+class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
 
-    fun interpret(expression: Expr) {
+    fun interpret(statements: List<Stmt>) {
         try {
-            val value = evaluate(expression)
-            println(stringify(value))
+            statements.forEach { execute(it) }
         } catch (error: Exception) {
             println(error)
         }
     }
 
-    fun evaluate(expression: Expr) = expression.accept(this)
+    override fun visitExpressionStmt(stmt: Expression) {
+        evaluate(stmt.expression)
+    }
+
+    override fun visitPrintStmt(stmt: Print) {
+        println(evaluate(stmt.expression))
+    }
+
+    private fun execute(stmt: Stmt) {
+        stmt.accept(this)
+    }
+
+    private fun evaluate(expression: Expr) = expression.accept(this)
 
     private fun stringify(`object`: Any?): String? {
         if (`object` == null) return "nil"
