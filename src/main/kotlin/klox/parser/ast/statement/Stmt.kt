@@ -1,5 +1,6 @@
 package klox.parser.ast.statement
 
+import klox.lexer.Token
 import klox.parser.ast.expression.Expr
 
 sealed class Stmt {
@@ -12,4 +13,10 @@ data class Expression(val expression: Expr) : Stmt() {
 
 data class Print(val expression: Expr) : Stmt() {
     override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitPrintStmt(this)
+}
+
+data class Var(val name: Token, val initializer: Expr?): Stmt() {
+    override fun <R> accept(visitor: StatementVisitor<R>): R {
+        TODO("Not yet implemented")
+    }
 }

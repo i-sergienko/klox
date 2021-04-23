@@ -8,6 +8,7 @@ import klox.parser.ast.expression.*
 import klox.parser.ast.statement.Expression
 import klox.parser.ast.statement.Print
 import klox.parser.ast.statement.Stmt
+import klox.parser.ast.statement.Var
 import java.util.*
 
 
@@ -17,15 +18,35 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
     override fun parse(): List<Stmt> {
         val statements: MutableList<Stmt> = ArrayList()
         while (!isAtEnd()) {
-            statements.add(statement())
+            val declaration = declaration()
+            declaration?.apply { statements.add(this) }
         }
 
         return statements
     }
 
+    private fun declaration(): Stmt? {
+        return try {
+            if (match(VAR)) varDeclaration() else statement()
+        } catch (error: ParseError) {
+            synchronize()
+            null
+        }
+    }
+
+    private fun varDeclaration(): Stmt? {
+        val name = consume(IDENTIFIER, "Expect variable name.")
+        var initializer: Expr? = null
+        if (match(EQUAL)) {
+            initializer = expression()
+        }
+        consume(SEMICOLON, "Expect ';' after variable declaration.")
+        return Var(name, initializer)
+    }
+
     private fun statement(): Stmt =
         when {
-            match(TokenType.PRINT) -> printStatement()
+            match(PRINT) -> printStatement()
             else -> expressionStatement()
         }
 
@@ -104,6 +125,9 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
             val expr = expression()
             consume(RIGHT_PAREN, "Expect ')' after expression.")
             return Grouping(expr)
+        }
+        if (match(IDENTIFIER)) {
+            return Variable(previous())
         }
 
         throw error(peek(), "Expect expression.")
