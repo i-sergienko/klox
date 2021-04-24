@@ -7,7 +7,7 @@ import klox.parser.ast.statement.*
 
 
 class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
-    val environment: Environment = Environment()
+    var environment: Environment = Environment()
 
     fun interpret(statements: List<Stmt>) {
         try {
@@ -29,8 +29,24 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
         environment.define(stmt.name.lexeme, stmt.initializer?.let { evaluate(it) })
     }
 
+    override fun visitBlockStmt(stmt: Block) {
+        executeBlock(stmt.statements, Environment(environment));
+    }
+
     private fun execute(stmt: Stmt) {
         stmt.accept(this)
+    }
+
+    fun executeBlock(statements: List<Stmt>, environment: Environment) {
+        val previous = this.environment
+        try {
+            this.environment = environment
+            for (statement in statements) {
+                execute(statement)
+            }
+        } finally {
+            this.environment = previous
+        }
     }
 
     private fun evaluate(expression: Expr) = expression.accept(this)

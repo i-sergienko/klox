@@ -8,4 +8,6 @@ interface StatementVisitor<R> {
 
     fun visitVarStmt(stmt: Var): R
 
+    fun visitBlockStmt(stmt: Block): R
+
 }

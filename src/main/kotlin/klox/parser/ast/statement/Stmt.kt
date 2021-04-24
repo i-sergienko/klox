@@ -15,6 +15,10 @@ data class Print(val expression: Expr) : Stmt() {
     override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitPrintStmt(this)
 }
 
-data class Var(val name: Token, val initializer: Expr?): Stmt() {
+data class Var(val name: Token, val initializer: Expr?) : Stmt() {
     override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitVarStmt(this)
+}
+
+data class Block(val statements: List<Stmt>) : Stmt() {
+    override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitBlockStmt(this)
 }

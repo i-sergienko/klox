@@ -5,10 +5,7 @@ import klox.lexer.Token
 import klox.lexer.TokenType
 import klox.lexer.TokenType.*
 import klox.parser.ast.expression.*
-import klox.parser.ast.statement.Expression
-import klox.parser.ast.statement.Print
-import klox.parser.ast.statement.Stmt
-import klox.parser.ast.statement.Var
+import klox.parser.ast.statement.*
 import java.util.*
 
 
@@ -47,6 +44,7 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
     private fun statement(): Stmt =
         when {
             match(PRINT) -> printStatement()
+            match(LEFT_BRACE) -> Block(block())
             else -> expressionStatement()
         }
 
@@ -60,6 +58,16 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
         val expr = expression()
         consume(SEMICOLON, "Expect ';' after expression.")
         return Expression(expr)
+    }
+
+    private fun block(): List<Stmt> {
+        val statements: MutableList<Stmt> = ArrayList()
+        while (!check(RIGHT_BRACE) && !isAtEnd()) {
+            val declaration = declaration()
+            declaration?.apply { statements.add(this) }
+        }
+        consume(RIGHT_BRACE, "Expect '}' after block.")
+        return statements
     }
 
     private fun expression(): Expr = assignment()
