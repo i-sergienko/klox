@@ -21,6 +21,14 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
         evaluate(stmt.expression)
     }
 
+    override fun visitIfStmt(stmt: If) {
+        if (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.thenBranch);
+        } else if (stmt.elseBranch != null) {
+            execute(stmt.elseBranch);
+        }
+    }
+
     override fun visitPrintStmt(stmt: Print) {
         println(evaluate(stmt.expression))
     }

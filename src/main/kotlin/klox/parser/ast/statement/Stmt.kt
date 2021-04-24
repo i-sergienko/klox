@@ -22,3 +22,7 @@ data class Var(val name: Token, val initializer: Expr?) : Stmt() {
 data class Block(val statements: List<Stmt>) : Stmt() {
     override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitBlockStmt(this)
 }
+
+data class If(val condition: Expr, val thenBranch: Stmt, val elseBranch: Stmt?): Stmt() {
+    override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitIfStmt(this)
+}

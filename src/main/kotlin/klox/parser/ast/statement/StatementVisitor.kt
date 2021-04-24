@@ -10,4 +10,6 @@ interface StatementVisitor<R> {
 
     fun visitBlockStmt(stmt: Block): R
 
+    fun visitIfStmt(stmt: If): R
+
 }
