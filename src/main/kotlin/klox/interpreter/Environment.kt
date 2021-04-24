@@ -9,6 +9,14 @@ class Environment {
         values[name] = value
     }
 
+    fun assign(name: Token, value: Any?) {
+        if (values.containsKey(name.lexeme)) {
+            values[name.lexeme] = value
+        } else {
+            throw IllegalStateException("Undefined variable '" + name.lexeme + "'.");
+        }
+    }
+
     fun get(name: Token): Any? {
         if (values.containsKey(name.lexeme)) {
             return values[name.lexeme]

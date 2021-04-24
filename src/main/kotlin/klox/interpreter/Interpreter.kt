@@ -48,7 +48,9 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
     }
 
     override fun visitAssignExpr(expr: Assign): Any? {
-        TODO("Not yet implemented")
+        val value = evaluate(expr.value)
+        environment.assign(expr.name, value)
+        return value
     }
 
     override fun visitBinaryExpr(expr: Binary): Any? {
