@@ -2,7 +2,7 @@ package klox.interpreter
 
 import klox.lexer.Token
 
-class Environment {
+class Environment(private val enclosing: Environment? = null) {
     private val values: MutableMap<String, Any?> = HashMap();
 
     fun define(name: String, value: Any?) {
@@ -10,18 +10,18 @@ class Environment {
     }
 
     fun assign(name: Token, value: Any?) {
-        if (values.containsKey(name.lexeme)) {
-            values[name.lexeme] = value
-        } else {
-            throw IllegalStateException("Undefined variable '" + name.lexeme + "'.");
+        when {
+            values.containsKey(name.lexeme) -> values[name.lexeme] = value
+            enclosing != null -> enclosing.assign(name, value)
+            else -> throw IllegalStateException("Undefined variable '" + name.lexeme + "'.");
         }
     }
 
     fun get(name: Token): Any? {
-        if (values.containsKey(name.lexeme)) {
-            return values[name.lexeme]
-        } else {
-            throw IllegalStateException("Undefined variable '" + name.lexeme + "'.");
+        return when {
+            values.containsKey(name.lexeme) -> values[name.lexeme]
+            enclosing != null -> enclosing.get(name)
+            else -> throw IllegalStateException("Undefined variable '" + name.lexeme + "'.");
         }
     }
 }
