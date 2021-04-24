@@ -12,4 +12,6 @@ interface StatementVisitor<R> {
 
     fun visitIfStmt(stmt: If): R
 
+    fun visitWhileStmt(stmt: While): R
+
 }

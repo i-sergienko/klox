@@ -29,6 +29,12 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
         }
     }
 
+    override fun visitWhileStmt(stmt: While) {
+        while (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.body);
+        }
+    }
+
     override fun visitPrintStmt(stmt: Print) {
         println(evaluate(stmt.expression))
     }
