@@ -113,7 +113,15 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
     override fun visitLiteralExpr(expr: Literal): Any? = expr.value
 
     override fun visitLogicalExpr(expr: Logical): Any? {
-        TODO("Not yet implemented")
+        val left = evaluate(expr.left)
+
+        if (expr.operator.type === TokenType.OR) {
+            if (isTruthy(left)) return left
+        } else {
+            if (!isTruthy(left)) return left
+        }
+
+        return evaluate(expr.right)
     }
 
     override fun visitSetExpr(expr: Set): Any? {
