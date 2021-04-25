@@ -1,9 +1,13 @@
 package klox.interpreter
 
+import klox.interpreter.function.LoxCallable
+import klox.interpreter.function.LoxFunction
+import klox.interpreter.function.NATIVE_FUNCTIONS
 import klox.lexer.TokenType
 import klox.parser.ast.expression.*
 import klox.parser.ast.expression.Set
 import klox.parser.ast.statement.*
+import klox.parser.ast.statement.Function
 import java.util.*
 
 
@@ -23,6 +27,11 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
 
     override fun visitExpressionStmt(stmt: Expression) {
         evaluate(stmt.expression)
+    }
+
+    override fun visitFunctionStmt(stmt: Function) {
+        val function = LoxFunction(stmt, globals)
+        environment.define(stmt.name.lexeme, function)
     }
 
     override fun visitIfStmt(stmt: If) {

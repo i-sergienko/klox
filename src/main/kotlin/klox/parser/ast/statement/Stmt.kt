@@ -19,6 +19,10 @@ data class Var(val name: Token, val initializer: Expr?) : Stmt() {
     override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitVarStmt(this)
 }
 
+data class Function(val name: Token, val params: List<Token>, val body: List<Stmt>) : Stmt() {
+    override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitFunctionStmt(this)
+}
+
 data class Block(val statements: List<Stmt>) : Stmt() {
     override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitBlockStmt(this)
 }

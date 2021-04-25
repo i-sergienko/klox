@@ -1,4 +1,6 @@
-package klox.interpreter
+package klox.interpreter.function
+
+import klox.interpreter.Interpreter
 
 interface LoxCallable {
     fun arity(): Int

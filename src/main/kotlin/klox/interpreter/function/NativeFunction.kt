@@ -1,4 +1,6 @@
-package klox.interpreter
+package klox.interpreter.function
+
+import klox.interpreter.Interpreter
 
 val NATIVE_FUNCTIONS = mapOf<String, LoxCallable>(
     "clock" to object : LoxCallable {
