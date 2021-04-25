@@ -10,6 +10,8 @@ interface StatementVisitor<R> {
 
     fun visitFunctionStmt(stmt: Function): R
 
+    fun visitReturnStmt(stmt: Return): R
+
     fun visitBlockStmt(stmt: Block): R
 
     fun visitIfStmt(stmt: If): R

@@ -3,6 +3,7 @@ package klox.interpreter
 import klox.interpreter.function.LoxCallable
 import klox.interpreter.function.LoxFunction
 import klox.interpreter.function.NATIVE_FUNCTIONS
+import klox.interpreter.function.ReturnException
 import klox.lexer.TokenType
 import klox.parser.ast.expression.*
 import klox.parser.ast.expression.Set
@@ -32,6 +33,13 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
     override fun visitFunctionStmt(stmt: Function) {
         val function = LoxFunction(stmt, globals)
         environment.define(stmt.name.lexeme, function)
+    }
+
+    override fun visitReturnStmt(stmt: Return) {
+        var value: Any? = null
+        if (stmt.value != null) value = evaluate(stmt.value)
+
+        throw ReturnException(value)
     }
 
     override fun visitIfStmt(stmt: If) {

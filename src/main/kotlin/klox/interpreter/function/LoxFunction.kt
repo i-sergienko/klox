@@ -15,7 +15,11 @@ class LoxFunction(
 
         arguments.forEachIndexed { i, argument -> environment.define(declaration.params[i].lexeme, argument) }
 
-        interpreter.executeBlock(declaration.body, environment)
+        try {
+            interpreter.executeBlock(declaration.body, environment)
+        } catch (e: ReturnException) {
+            return e.value
+        }
         return null
     }
 

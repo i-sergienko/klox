@@ -23,6 +23,10 @@ data class Function(val name: Token, val params: List<Token>, val body: List<Stm
     override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitFunctionStmt(this)
 }
 
+data class Return(val keyword: Token, val value: Expr?) : Stmt() {
+    override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitReturnStmt(this)
+}
+
 data class Block(val statements: List<Stmt>) : Stmt() {
     override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitBlockStmt(this)
 }
