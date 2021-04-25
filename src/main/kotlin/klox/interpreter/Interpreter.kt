@@ -4,10 +4,14 @@ import klox.lexer.TokenType
 import klox.parser.ast.expression.*
 import klox.parser.ast.expression.Set
 import klox.parser.ast.statement.*
+import java.util.*
 
 
 class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
-    var environment: Environment = Environment()
+    private val globals: Environment = Environment().apply {
+        NATIVE_FUNCTIONS.forEach { (name, value) -> define(name, value) }
+    }
+    private var environment: Environment = globals
 
     fun interpret(statements: List<Stmt>) {
         try {
@@ -107,7 +111,24 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
     }
 
     override fun visitCallExpr(expr: Call): Any? {
-        TODO("Not yet implemented")
+        val callee = evaluate(expr.callee)
+
+        val arguments: MutableList<Any?> = ArrayList()
+        for (argument in expr.arguments) {
+            arguments.add(evaluate(argument))
+        }
+
+        if (callee !is LoxCallable) {
+            throw IllegalStateException("Can only call functions and classes.")
+        }
+
+        val function: LoxCallable = callee
+
+        if (arguments.size != function.arity()) {
+            throw IllegalStateException("Expected ${function.arity()} arguments but got ${arguments.size}.")
+        }
+
+        return function.call(this, arguments)
     }
 
     override fun visitGetExpr(expr: Get): Any? {
