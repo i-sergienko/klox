@@ -4,6 +4,7 @@ import klox.interpreter.function.LoxCallable
 import klox.interpreter.function.LoxFunction
 import klox.interpreter.function.NATIVE_FUNCTIONS
 import klox.interpreter.function.ReturnException
+import klox.lexer.Token
 import klox.lexer.TokenType
 import klox.parser.ast.expression.*
 import klox.parser.ast.expression.Set
@@ -17,6 +18,7 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
         NATIVE_FUNCTIONS.forEach { (name, value) -> define(name, value) }
     }
     private var environment: Environment = globals
+    private val locals: MutableMap<Expr, Int> = HashMap()
 
     fun interpret(statements: List<Stmt>) {
         try {
@@ -24,6 +26,10 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
         } catch (error: Exception) {
             println(error)
         }
+    }
+
+    fun resolve(expr: Expr, depth: Int) {
+        locals[expr] = depth
     }
 
     override fun visitExpressionStmt(stmt: Expression) {
@@ -100,7 +106,14 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
 
     override fun visitAssignExpr(expr: Assign): Any? {
         val value = evaluate(expr.value)
-        environment.assign(expr.name, value)
+
+        val distance = locals[expr]
+        if (distance != null) {
+            environment.assignAt(distance, expr.name, value)
+        } else {
+            globals.assign(expr.name, value)
+        }
+
         return value
     }
 
@@ -197,7 +210,16 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
             else -> true
         }
 
-    override fun visitVariableExpr(expr: Variable): Any? = environment.get(expr.name)
+    override fun visitVariableExpr(expr: Variable): Any? = lookUpVariable(expr.name, expr)
+
+    private fun lookUpVariable(name: Token, expr: Expr): Any? {
+        val distance = locals[expr]
+        return if (distance != null) {
+            environment.getAt(distance, name.lexeme)
+        } else {
+            globals.get(name)
+        }
+    }
 
     override fun visitAnonymousFunctionExpr(expr: AnonymousFunction): Any? =
         LoxFunction(Function(expr.paren, expr.params, expr.body), environment)

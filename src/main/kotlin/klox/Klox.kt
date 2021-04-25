@@ -9,6 +9,7 @@ import klox.parser.Parser
 import klox.parser.ParserImpl
 import klox.parser.ast.expression.Expr
 import klox.parser.ast.statement.Stmt
+import klox.resolver.Resolver
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.Reader
@@ -60,6 +61,12 @@ object Klox {
         val statements: List<Stmt> = parser.parse()
 
         // Stop if there was a syntax error.
+        if (hadError) return
+
+        val resolver = Resolver(interpreter)
+        resolver.resolve(statements)
+
+        // Stop if there was a semantic error.
         if (hadError) return
 
         interpreter.interpret(statements)
