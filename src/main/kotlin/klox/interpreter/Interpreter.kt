@@ -198,4 +198,7 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
         }
 
     override fun visitVariableExpr(expr: Variable): Any? = environment.get(expr.name)
+
+    override fun visitAnonymousFunctionExpr(expr: AnonymousFunction): Any? =
+        LoxFunction(Function(expr.paren, expr.params, expr.body), environment)
 }

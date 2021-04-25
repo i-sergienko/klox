@@ -1,6 +1,7 @@
 package klox.parser.ast.expression
 
 import klox.lexer.Token
+import klox.parser.ast.statement.Stmt
 
 sealed class Expr {
     abstract fun <R> accept(visitor: ExpressionVisitor<R>): R
@@ -74,4 +75,8 @@ data class Unary(val operator: Token, val right: Expr) : Expr() {
 
 data class Variable(val name: Token) : Expr() {
     override fun <R> accept(visitor: ExpressionVisitor<R>): R = visitor.visitVariableExpr(this)
+}
+
+data class AnonymousFunction(val paren: Token, val params: List<Token>, val body: List<Stmt>) : Expr() {
+    override fun <R> accept(visitor: ExpressionVisitor<R>): R = visitor.visitAnonymousFunctionExpr(this)
 }

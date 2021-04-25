@@ -26,7 +26,7 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
     private fun declaration(): Stmt? {
         return try {
             when {
-                match(FUN) -> function("function")
+                peek().type == FUN && peekNext().type == IDENTIFIER -> functionStatement("function")
                 match(VAR) -> varDeclaration()
                 else -> statement()
             }
@@ -128,25 +128,11 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
         return Expression(expr)
     }
 
-    private fun function(kind: String): Function {
+    private fun functionStatement(kind: String): Function {
+        consume(FUN, "Expected 'fun' keyword in function declaration")
         val name = consume(IDENTIFIER, "Expect $kind name.")
 
-        consume(LEFT_PAREN, "Expect '(' after $kind name.")
-        val parameters: MutableList<Token> = ArrayList()
-        if (!check(RIGHT_PAREN)) {
-            do {
-                if (parameters.size >= 255) {
-                    error(peek(), "Can't have more than 255 parameters.")
-                }
-                parameters.add(
-                    consume(IDENTIFIER, "Expect parameter name.")
-                )
-            } while (match(COMMA))
-        }
-        consume(RIGHT_PAREN, "Expect ')' after parameters.")
-
-        consume(LEFT_BRACE, "Expect '{' before $kind body.")
-        val body = block()
+        val (parameters, body) = functionParamsAndBody(kind)
         return Function(name, parameters, body)
     }
 
@@ -271,24 +257,48 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
         return Call(callee, paren, arguments)
     }
 
-
     private fun primary(): Expr {
-        if (match(FALSE)) return Literal(false)
-        if (match(TRUE)) return Literal(true)
-        if (match(NIL)) return Literal(null)
-        if (match(NUMBER, STRING)) {
-            return Literal(previous().literal)
+        return when {
+            match(FALSE) -> Literal(false)
+            match(TRUE) -> Literal(true)
+            match(NIL) -> Literal(null)
+            match(NUMBER, STRING) -> Literal(previous().literal)
+            match(LEFT_PAREN) -> {
+                val expr = expression()
+                consume(RIGHT_PAREN, "Expect ')' after expression.")
+                Grouping(expr)
+            }
+            match(IDENTIFIER) -> Variable(previous())
+            match(FUN) -> anonymousFunction("function")
+            else -> throw error(peek(), "Expect expression.")
         }
-        if (match(LEFT_PAREN)) {
-            val expr = expression()
-            consume(RIGHT_PAREN, "Expect ')' after expression.")
-            return Grouping(expr)
-        }
-        if (match(IDENTIFIER)) {
-            return Variable(previous())
-        }
+    }
 
-        throw error(peek(), "Expect expression.")
+    private fun anonymousFunction(kind: String): AnonymousFunction {
+        val (parameters, body) = functionParamsAndBody(kind)
+
+        return AnonymousFunction(peek(), parameters, body)
+    }
+
+    private fun functionParamsAndBody(kind: String): Pair<List<Token>, List<Stmt>> {
+        consume(LEFT_PAREN, "Expect '(' after $kind name.")
+        val parameters: MutableList<Token> = ArrayList()
+        if (!check(RIGHT_PAREN)) {
+            do {
+                if (parameters.size >= 255) {
+                    error(peek(), "Can't have more than 255 parameters.")
+                }
+                parameters.add(
+                    consume(IDENTIFIER, "Expect parameter name.")
+                )
+            } while (match(COMMA))
+        }
+        consume(RIGHT_PAREN, "Expect ')' after parameters.")
+
+        consume(LEFT_BRACE, "Expect '{' before $kind body.")
+        val body = block()
+
+        return parameters to body
     }
 
     private fun consume(type: TokenType, message: String): Token {
@@ -336,6 +346,8 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
     private fun isAtEnd(): Boolean = peek().type === EOF
 
     private fun peek(): Token = tokens[current]
+
+    private fun peekNext(): Token = if (isAtEnd()) peek() else tokens[current + 1]
 
     private fun previous(): Token = tokens[current - 1]
 

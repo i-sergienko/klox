@@ -13,4 +13,5 @@ interface ExpressionVisitor<R> {
     fun visitThisExpr(expr: This): R
     fun visitUnaryExpr(expr: Unary): R
     fun visitVariableExpr(expr: Variable): R
+    fun visitAnonymousFunctionExpr(expr: AnonymousFunction): R
 }
