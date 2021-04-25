@@ -6,12 +6,12 @@ import klox.parser.ast.statement.Function
 
 class LoxFunction(
     private val declaration: Function,
-    private val globals: Environment
+    private val closure: Environment
 ) : LoxCallable {
     override fun arity(): Int = declaration.params.size
 
     override fun call(interpreter: Interpreter, arguments: List<Any?>): Any? {
-        val environment = Environment(globals)
+        val environment = Environment(closure)
 
         arguments.forEachIndexed { i, argument -> environment.define(declaration.params[i].lexeme, argument) }
 

@@ -31,7 +31,7 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
     }
 
     override fun visitFunctionStmt(stmt: Function) {
-        val function = LoxFunction(stmt, globals)
+        val function = LoxFunction(stmt, environment)
         environment.define(stmt.name.lexeme, function)
     }
 
