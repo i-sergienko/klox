@@ -193,4 +193,9 @@ class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, 
         resolve(stmt.condition)
         resolve(stmt.body)
     }
+
+    override fun visitClassStmt(stmt: Class) {
+        declare(stmt.name)
+        define(stmt.name)
+    }
 }

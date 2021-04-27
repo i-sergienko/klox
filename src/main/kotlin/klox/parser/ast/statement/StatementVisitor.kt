@@ -18,4 +18,6 @@ interface StatementVisitor<R> {
 
     fun visitWhileStmt(stmt: While): R
 
+    fun visitClassStmt(stmt: Class): R
+
 }

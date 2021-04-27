@@ -27,6 +27,7 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
         return try {
             when {
                 peek().type == FUN && peekNext().type == IDENTIFIER -> functionStatement("function")
+                match(CLASS) -> classDeclaration()
                 match(VAR) -> varDeclaration()
                 else -> statement()
             }
@@ -36,7 +37,21 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
         }
     }
 
-    private fun varDeclaration(): Stmt? {
+    private fun classDeclaration(): Stmt {
+        val name = consume(IDENTIFIER, "Expect class name.")
+        consume(LEFT_BRACE, "Expect '{' before class body.")
+
+        val methods: MutableList<Function> = mutableListOf()
+        while (!check(RIGHT_BRACE) && !isAtEnd()) {
+            methods.add(functionStatement("method"))
+        }
+
+        consume(RIGHT_BRACE, "Expect '}' after class body.")
+
+        return Class(name, methods)
+    }
+
+    private fun varDeclaration(): Stmt {
         val name = consume(IDENTIFIER, "Expect variable name.")
         var initializer: Expr? = null
         if (match(EQUAL)) {

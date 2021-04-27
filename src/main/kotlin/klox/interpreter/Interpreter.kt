@@ -1,5 +1,6 @@
 package klox.interpreter
 
+import klox.interpreter.clazz.LoxClass
 import klox.interpreter.function.LoxCallable
 import klox.interpreter.function.LoxFunction
 import klox.interpreter.function.NATIVE_FUNCTIONS
@@ -72,6 +73,12 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
 
     override fun visitBlockStmt(stmt: Block) {
         executeBlock(stmt.statements, Environment(environment));
+    }
+
+    override fun visitClassStmt(stmt: Class) {
+        environment.define(stmt.name.lexeme, null)
+        val klass = LoxClass(stmt.name.lexeme)
+        environment.assign(stmt.name, klass)
     }
 
     private fun execute(stmt: Stmt) {

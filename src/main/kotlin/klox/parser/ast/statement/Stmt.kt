@@ -38,3 +38,7 @@ data class If(val condition: Expr, val thenBranch: Stmt, val elseBranch: Stmt?) 
 data class While(val condition: Expr, val body: Stmt) : Stmt() {
     override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitWhileStmt(this)
 }
+
+data class Class(val name: Token, val methods: List<Function>) : Stmt() {
+    override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitClassStmt(this)
+}
