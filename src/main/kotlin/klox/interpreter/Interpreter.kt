@@ -1,6 +1,7 @@
 package klox.interpreter
 
 import klox.interpreter.clazz.LoxClass
+import klox.interpreter.clazz.LoxInstance
 import klox.interpreter.function.LoxCallable
 import klox.interpreter.function.LoxFunction
 import klox.interpreter.function.NATIVE_FUNCTIONS
@@ -169,7 +170,12 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
     }
 
     override fun visitGetExpr(expr: Get): Any? {
-        TODO("Not yet implemented")
+        val `object` = evaluate(expr.`object`)
+        if (`object` is LoxInstance) {
+            return `object`[expr.name]
+        }
+
+        throw IllegalStateException("Only instances have properties.")
     }
 
     override fun visitGroupingExpr(expr: Grouping): Any? = evaluate(expr.expression)
@@ -189,7 +195,12 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
     }
 
     override fun visitSetExpr(expr: Set): Any? {
-        TODO("Not yet implemented")
+        val `object` =
+            evaluate(expr.`object`) as? LoxInstance ?: throw IllegalStateException("Only instances have fields.")
+
+        val value = evaluate(expr.value)
+        `object`[expr.name] = value
+        return value
     }
 
     override fun visitSuperExpr(expr: Super): Any? {

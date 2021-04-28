@@ -33,7 +33,7 @@ class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, 
     }
 
     override fun visitGetExpr(expr: Get) {
-        TODO("Not yet implemented")
+        resolve(expr.`object`)
     }
 
     override fun visitGroupingExpr(expr: Grouping) {
@@ -48,7 +48,8 @@ class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, 
     }
 
     override fun visitSetExpr(expr: Set) {
-        TODO("Not yet implemented")
+        resolve(expr.value)
+        resolve(expr.`object`)
     }
 
     override fun visitSuperExpr(expr: Super) {

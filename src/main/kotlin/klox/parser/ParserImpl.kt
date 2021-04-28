@@ -7,6 +7,7 @@ import klox.lexer.TokenType.*
 import klox.parser.ast.expression.*
 import klox.parser.ast.statement.*
 import klox.parser.ast.statement.Function
+import klox.parser.ast.expression.Set
 import java.util.*
 
 
@@ -171,7 +172,11 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
             if (expr is Variable) {
                 val name: Token = expr.name
                 return Assign(name, value)
+            } else if (expr is Get) {
+                val get: Get = expr
+                return Set(get.`object`, get.name, value)
             }
+
             error(equals, "Invalid assignment target.")
         }
         return expr
@@ -251,6 +256,9 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
         while (true) {
             if (match(LEFT_PAREN)) {
                 expr = finishCall(expr)
+            } else if (match(DOT)) {
+                val name = consume(IDENTIFIER, "Expect property name after '.'.")
+                expr = Get(expr, name)
             } else {
                 break
             }

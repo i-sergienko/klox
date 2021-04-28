@@ -55,7 +55,7 @@ data class Logical(
 
 data class Set(
     val `object`: Expr,
-    val operator: Token,
+    val name: Token,
     val value: Expr
 ) : Expr() {
     override fun <R> accept(visitor: ExpressionVisitor<R>): R = visitor.visitSetExpr(this)
