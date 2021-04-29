@@ -10,7 +10,7 @@ import klox.parser.ast.statement.Function
 import java.util.*
 
 
-private enum class FunctionType { NONE, FUNCTION }
+private enum class FunctionType { NONE, FUNCTION, METHOD }
 
 class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, StatementVisitor<Unit> {
     private val scopes: Deque<Map<String, Boolean>> = ArrayDeque<Map<String, Boolean>>()
@@ -197,6 +197,12 @@ class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, 
 
     override fun visitClassStmt(stmt: Class) {
         declare(stmt.name)
+
+        for (method in stmt.methods) {
+            val declaration: FunctionType = FunctionType.METHOD
+            resolveFunction(method.params, method.body, declaration)
+        }
+
         define(stmt.name)
     }
 }
