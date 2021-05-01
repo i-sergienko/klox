@@ -13,7 +13,7 @@ import java.util.*
 private enum class FunctionType { NONE, FUNCTION, METHOD }
 
 class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, StatementVisitor<Unit> {
-    private val scopes: Deque<Map<String, Boolean>> = ArrayDeque<Map<String, Boolean>>()
+    private val scopes: Deque<MutableMap<String, Boolean>> = ArrayDeque<MutableMap<String, Boolean>>()
     private var currentFunction: FunctionType = FunctionType.NONE
 
     override fun visitAssignExpr(expr: Assign) {
@@ -57,7 +57,7 @@ class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, 
     }
 
     override fun visitThisExpr(expr: This) {
-        TODO("Not yet implemented")
+        resolveLocal(expr, expr.keyword)
     }
 
     override fun visitUnaryExpr(expr: Unary) {
@@ -197,12 +197,15 @@ class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, 
 
     override fun visitClassStmt(stmt: Class) {
         declare(stmt.name)
+        define(stmt.name)
+
+        beginScope()
+        scopes.peek()["this"] = true
 
         for (method in stmt.methods) {
             val declaration: FunctionType = FunctionType.METHOD
             resolveFunction(method.params, method.body, declaration)
         }
-
-        define(stmt.name)
+        endScope()
     }
 }

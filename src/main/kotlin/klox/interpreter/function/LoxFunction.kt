@@ -2,7 +2,9 @@ package klox.interpreter.function
 
 import klox.interpreter.Environment
 import klox.interpreter.Interpreter
+import klox.interpreter.clazz.LoxInstance
 import klox.parser.ast.statement.Function
+
 
 class LoxFunction(
     private val declaration: Function,
@@ -21,6 +23,12 @@ class LoxFunction(
             return e.value
         }
         return null
+    }
+
+    fun bind(instance: LoxInstance): LoxFunction {
+        val environment = Environment(closure)
+        environment.define("this", instance)
+        return LoxFunction(declaration, environment)
     }
 
     override fun toString(): String = "<fn ${declaration.name.lexeme}>"

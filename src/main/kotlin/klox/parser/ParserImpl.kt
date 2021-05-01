@@ -286,6 +286,7 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
             match(TRUE) -> Literal(true)
             match(NIL) -> Literal(null)
             match(NUMBER, STRING) -> Literal(previous().literal)
+            match(THIS) -> This(previous())
             match(LEFT_PAREN) -> {
                 val expr = expression()
                 consume(RIGHT_PAREN, "Expect ')' after expression.")

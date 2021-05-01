@@ -18,7 +18,7 @@ data class LoxInstance(private val klass: LoxClass) {
 
         val method: LoxFunction? = klass.findMethod(name.lexeme)
         if (method != null) {
-            return method
+            return method.bind(this)
         }
 
         throw IllegalStateException("Undefined property '" + name.lexeme + "'.")

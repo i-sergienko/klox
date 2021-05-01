@@ -215,9 +215,7 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
         TODO("Not yet implemented")
     }
 
-    override fun visitThisExpr(expr: This): Any? {
-        TODO("Not yet implemented")
-    }
+    override fun visitThisExpr(expr: This): Any? = lookUpVariable(expr.keyword, expr)
 
     override fun visitUnaryExpr(expr: Unary): Any? {
         val right = evaluate(expr.right)
