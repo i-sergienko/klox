@@ -79,7 +79,7 @@ class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, 
     }
 
     private fun resolveLocal(expr: Expr, name: Token) {
-        scopes.reversed().withIndex().forEach { (i, scope) ->
+        scopes.withIndex().forEach { (i, scope) ->
             if (scope.containsKey(name.lexeme)) {
                 interpreter.resolve(expr, i)
                 return
