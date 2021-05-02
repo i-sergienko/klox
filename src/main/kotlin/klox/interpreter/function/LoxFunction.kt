@@ -8,7 +8,8 @@ import klox.parser.ast.statement.Function
 
 class LoxFunction(
     private val declaration: Function,
-    private val closure: Environment
+    private val closure: Environment,
+    private val isInitializer: Boolean
 ) : LoxCallable {
     override fun arity(): Int = declaration.params.size
 
@@ -20,7 +21,13 @@ class LoxFunction(
         try {
             interpreter.executeBlock(declaration.body, environment)
         } catch (e: ReturnException) {
+            if (isInitializer) return closure.getAt(0, "this")
+
             return e.value
+        }
+
+        if (isInitializer) {
+            return closure.getAt(0, "this")
         }
         return null
     }
@@ -28,7 +35,7 @@ class LoxFunction(
     fun bind(instance: LoxInstance): LoxFunction {
         val environment = Environment(closure)
         environment.define("this", instance)
-        return LoxFunction(declaration, environment)
+        return LoxFunction(declaration, environment, isInitializer)
     }
 
     override fun toString(): String = "<fn ${declaration.name.lexeme}>"

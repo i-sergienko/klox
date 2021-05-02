@@ -1,3 +1,3 @@
 package klox.resolver
 
-enum class FunctionType { NONE, FUNCTION, METHOD }
+enum class FunctionType { NONE, FUNCTION, METHOD, INITIALIZER }

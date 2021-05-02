@@ -39,7 +39,7 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
     }
 
     override fun visitFunctionStmt(stmt: Function) {
-        val function = LoxFunction(stmt, environment)
+        val function = LoxFunction(stmt, environment, false)
         environment.define(stmt.name.lexeme, function)
     }
 
@@ -81,7 +81,7 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
 
         val methods: MutableMap<String, LoxFunction> = HashMap()
         for (method in stmt.methods) {
-            val function = LoxFunction(method, environment)
+            val function = LoxFunction(method, environment, method.name.lexeme == "init")
             methods[method.name.lexeme] = function
         }
 
@@ -246,5 +246,5 @@ class Interpreter : ExpressionVisitor<Any?>, StatementVisitor<Unit> {
     }
 
     override fun visitAnonymousFunctionExpr(expr: AnonymousFunction): Any? =
-        LoxFunction(Function(expr.paren, expr.params, expr.body), environment)
+        LoxFunction(Function(expr.paren, expr.params, expr.body), environment, false)
 }

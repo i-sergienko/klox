@@ -154,6 +154,10 @@ class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, 
         }
 
         if (stmt.value != null) {
+            if (currentFunction == FunctionType.INITIALIZER) {
+                Klox.error(stmt.keyword, "Can't return a value from an initializer.")
+            }
+
             resolve(stmt.value)
         }
     }
@@ -208,7 +212,10 @@ class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, 
         scopes.peek()["this"] = true
 
         for (method in stmt.methods) {
-            val declaration: FunctionType = FunctionType.METHOD
+            val declaration: FunctionType = when {
+                method.name.lexeme == "init" -> FunctionType.INITIALIZER
+                else -> FunctionType.METHOD
+            }
             resolveFunction(method.params, method.body, declaration)
         }
         endScope()
