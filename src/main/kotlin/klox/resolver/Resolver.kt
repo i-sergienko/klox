@@ -9,12 +9,10 @@ import klox.parser.ast.statement.*
 import klox.parser.ast.statement.Function
 import java.util.*
 
-
-private enum class FunctionType { NONE, FUNCTION, METHOD }
-
 class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, StatementVisitor<Unit> {
     private val scopes: Deque<MutableMap<String, Boolean>> = ArrayDeque<MutableMap<String, Boolean>>()
     private var currentFunction: FunctionType = FunctionType.NONE
+    private var currentClass: ClassType = ClassType.NONE
 
     override fun visitAssignExpr(expr: Assign) {
         resolve(expr.value)
@@ -57,6 +55,10 @@ class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, 
     }
 
     override fun visitThisExpr(expr: This) {
+        if (currentClass == ClassType.NONE) {
+            Klox.error(expr.keyword, "Can't use 'this' outside of a class.")
+        }
+
         resolveLocal(expr, expr.keyword)
     }
 
@@ -196,6 +198,9 @@ class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, 
     }
 
     override fun visitClassStmt(stmt: Class) {
+        val enclosingClass = currentClass
+        currentClass = ClassType.CLASS
+
         declare(stmt.name)
         define(stmt.name)
 
@@ -207,5 +212,7 @@ class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, 
             resolveFunction(method.params, method.body, declaration)
         }
         endScope()
+
+        currentClass = enclosingClass
     }
 }
