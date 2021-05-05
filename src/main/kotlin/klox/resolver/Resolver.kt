@@ -51,7 +51,13 @@ class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, 
     }
 
     override fun visitSuperExpr(expr: Super) {
-        TODO("Not yet implemented")
+        if (currentClass == ClassType.NONE) {
+            Klox.error(expr.keyword, "Can't use 'super' outside of a class.");
+        } else if (currentClass != ClassType.SUBCLASS) {
+            Klox.error(expr.keyword, "Can't use 'super' in a class with no superclass.");
+        }
+
+        resolveLocal(expr, expr.keyword)
     }
 
     override fun visitThisExpr(expr: This) {
@@ -208,7 +214,19 @@ class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, 
         declare(stmt.name)
         define(stmt.name)
 
-        beginScope()
+        val subclassName = stmt.name.lexeme
+        stmt.superclass?.apply {
+            if (name.lexeme == subclassName) {
+                Klox.error(name, "A class can't inherit from itself.")
+            }
+            currentClass = ClassType.SUBCLASS
+            resolve(this)
+
+            beginScope() // Begin a new scope to define 'super'
+            scopes.peek()["super"] = true
+        }
+
+        beginScope() // Begin a new scope to define 'this'
         scopes.peek()["this"] = true
 
         for (method in stmt.methods) {
@@ -218,7 +236,9 @@ class Resolver(private val interpreter: Interpreter) : ExpressionVisitor<Unit>, 
             }
             resolveFunction(method.params, method.body, declaration)
         }
-        endScope()
+        endScope()  // Get out of 'this' scope
+
+        stmt.superclass?.apply { endScope() } // Get out of the class scope
 
         currentClass = enclosingClass
     }

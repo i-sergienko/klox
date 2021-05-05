@@ -2,6 +2,7 @@ package klox.parser.ast.statement
 
 import klox.lexer.Token
 import klox.parser.ast.expression.Expr
+import klox.parser.ast.expression.Variable
 
 sealed class Stmt {
     abstract fun <R> accept(visitor: StatementVisitor<R>): R
@@ -39,6 +40,6 @@ data class While(val condition: Expr, val body: Stmt) : Stmt() {
     override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitWhileStmt(this)
 }
 
-data class Class(val name: Token, val methods: List<Function>) : Stmt() {
+data class Class(val name: Token, val superclass: Variable?, val methods: List<Function>) : Stmt() {
     override fun <R> accept(visitor: StatementVisitor<R>): R = visitor.visitClassStmt(this)
 }

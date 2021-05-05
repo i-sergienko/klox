@@ -40,6 +40,12 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
 
     private fun classDeclaration(): Stmt {
         val name = consume(IDENTIFIER, "Expect class name.")
+
+        val superclass = if (match(LESS)) {
+            consume(IDENTIFIER, "Expect superclass name")
+            Variable(previous())
+        } else null
+
         consume(LEFT_BRACE, "Expect '{' before class body.")
 
         val methods: MutableList<Function> = mutableListOf()
@@ -49,7 +55,7 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
 
         consume(RIGHT_BRACE, "Expect '}' after class body.")
 
-        return Class(name, methods)
+        return Class(name, superclass, methods)
     }
 
     private fun varDeclaration(): Stmt {
@@ -286,6 +292,12 @@ class ParserImpl(private val tokens: List<Token>) : Parser {
             match(TRUE) -> Literal(true)
             match(NIL) -> Literal(null)
             match(NUMBER, STRING) -> Literal(previous().literal)
+            match(SUPER) -> {
+                val keyword = previous()
+                consume(DOT, "Expect '.' after 'super'.")
+                val method = consume(IDENTIFIER, "Expect superclass method name.")
+                Super(keyword, method)
+            }
             match(THIS) -> This(previous())
             match(LEFT_PAREN) -> {
                 val expr = expression()

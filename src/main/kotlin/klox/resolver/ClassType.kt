@@ -1,3 +1,3 @@
 package klox.resolver
 
-enum class ClassType { NONE, CLASS }
+enum class ClassType { NONE, CLASS, SUBCLASS }
